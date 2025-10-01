@@ -1,0 +1,40 @@
+# Project information
+site_name: ONTO-RAG-V1 Documentation
+site_author: Jules, Implementation Agent
+site_description: >-
+  Technical documentation for the ONTO-RAG-V1, a GenAI-Powered RAG System for Ontologies.
+
+# Repository
+repo_url: https://github.com/example/onto-rag-v1
+repo_name: example/onto-rag-v1
+
+# Copyright
+copyright: 'Copyright &copy; 2025 Project Architect'
+
+# Configuration
+theme:
+  name: mkdocs
+  # You can customize the theme further here if needed.
+  # For example, using a different theme like 'material':
+  # name: material
+  # features:
+  #   - navigation.tabs
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+# Page tree
+nav:
+  - 'Welcome': 'index.md'
+  - 'System Architecture': 'ARCHITECTURE.md'
+  - 'Project Overview': 'PROJECT_OVERVIEW.md'
+  - 'API Reference':
+    - 'Ingestion': 'api/ingestion.md'
+    - 'Query': 'api/query.md'
+  - 'Configuration Guide': 'guides/configuration.md'
+  - 'Tutorials':
+    - 'Ingesting an Ontology': 'tutorials/ingest_tutorial.md'
+    - 'Querying an Ontology': 'tutorials/query_tutorial.md'

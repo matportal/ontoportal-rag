@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://example.org/sample-ontology#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <owl:Ontology rdf:about="http://example.org/sample-ontology"/>
+  
+  <owl:Class rdf:about="http://example.org/sample-ontology#Person">
+    <rdfs:label>Person</rdfs:label>
+  </owl:Class>
+  
+  <owl:Class rdf:about="http://example.org/sample-ontology#Animal">
+    <rdfs:label>Animal</rdfs:label>
+  </owl:Class>
+  
+  <owl:ObjectProperty rdf:about="http://example.org/sample-ontology#hasPet">
+    <rdfs:domain rdf:resource="http://example.org/sample-ontology#Person"/>
+    <rdfs:range rdf:resource="http://example.org/sample-ontology#Animal"/>
+  </owl:ObjectProperty>
+</rdf:RDF>

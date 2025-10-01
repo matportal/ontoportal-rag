@@ -1,0 +1,71 @@
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: onto-rag-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  weaviate:
+    image: semitechnologies/weaviate:1.24.1
+    container_name: onto-rag-weaviate
+    ports:
+      - "8080:8080"
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    env_file:
+      - .env
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'none'
+      ENABLE_MODULES: ''
+      CLUSTER_HOSTNAME: 'node1'
+    restart: on-failure:5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: onto-rag-api
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      sh -c "uvicorn src.app.main:app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      - weaviate
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: onto-rag-worker
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # The command for the celery worker will need the app path.
+    # I will create the worker entrypoint later in src/app/worker.py
+    command: >
+      sh -c "celery -A src.app.worker.celery_app worker -l INFO"
+    depends_on:
+      - weaviate
+      - redis
+    restart: unless-stopped
+
+volumes:
+  weaviate_data:
+  redis_data:
