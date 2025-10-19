@@ -3,6 +3,7 @@ import logging
 import json
 import pathlib
 import shutil
+import subprocess
 import tempfile
 from langchain.text_splitter import MarkdownHeaderTextSplitter
 try:
@@ -10,9 +11,92 @@ try:
 except ImportError:  # pragma: no cover - fallback for environments still using pylode v2 package name
     from pylode import OntDoc
 from rdflib import Graph
+from rdflib.util import guess_format
 
 from src.app.worker import celery_app
 from src.app.services.indexing_service import IndexingService
+from src.app.services.ontology_sanitizer import OntologySanitizer
+
+
+def _load_graph_with_fallbacks(path: pathlib.Path) -> Graph:
+    """Attempt to parse an ontology file using multiple RDF serializations."""
+    sanitizer = OntologySanitizer()
+    try:
+        candidate_paths = sanitizer.sanitize(path)
+        last_exception = None
+
+        for candidate_path in candidate_paths:
+            suffixes = [s.lower() for s in candidate_path.suffixes]
+            if ".ttl" in suffixes:
+                g = Graph()
+                try:
+                    logger.info("Attempting to parse %s as turtle (ttl fast-path)", candidate_path)
+                    g.parse(str(candidate_path), format="turtle")
+                    logger.info("Successfully parsed ontology using 'turtle' format (file: %s).", candidate_path.name)
+                    return g
+                except Exception as exc:
+                    last_exception = exc
+                    logger.debug("Fast-path turtle parse failed for %s: %s", candidate_path, exc)
+
+            candidate_formats = _detect_candidate_formats(candidate_path)
+
+            for fmt in candidate_formats:
+                g = Graph()
+                try:
+                    logger.info("Attempting to parse %s as %s", candidate_path, fmt)
+                    g.parse(str(candidate_path), format=fmt)
+                    logger.info("Successfully parsed ontology using '%s' format (file: %s).", fmt, candidate_path.name)
+                    return g
+                except Exception as exc:
+                    last_exception = exc
+                    logger.debug("Failed to parse %s as %s: %s", candidate_path, fmt, exc)
+
+        if last_exception:
+            logger.error(
+                "Unable to parse ontology file %s even after sanitation pipeline. Last error: %s",
+                path,
+                last_exception
+            )
+            raise last_exception
+
+        raise ValueError(f"Unable to determine format for ontology file {path}")
+    finally:
+        sanitizer.cleanup()
+
+
+def _detect_candidate_formats(path: pathlib.Path) -> list[str]:
+    candidate_formats: list[str] = []
+
+    guessed = guess_format(path.name)
+    if guessed:
+        candidate_formats.append(guessed)
+
+    try:
+        head = path.read_text(encoding="utf-8", errors="ignore")[:500].lower()
+    except Exception:  # pragma: no cover
+        head = ""
+
+    if head.lstrip().startswith("<?xml"):
+        candidate_formats.append("xml")
+    if "@prefix" in head or head.lstrip().startswith("prefix"):
+        candidate_formats.append("turtle")
+    if head.lstrip().startswith("{\"@context\""):
+        candidate_formats.append("json-ld")
+
+    candidate_formats.extend(["xml", "turtle", "n3", "nt", "trig"])
+
+    seen = set()
+    ordered_formats = []
+    for fmt in candidate_formats:
+        if fmt and fmt not in seen:
+            seen.add(fmt)
+            ordered_formats.append(fmt)
+    suffixes = [s.lower() for s in path.suffixes]
+    if "turtle" in ordered_formats and ".ttl" in suffixes and "xml" in ordered_formats:
+        ordered_formats = [fmt for fmt in ordered_formats if fmt != "xml"]
+
+    return ordered_formats
+
 
 logger = logging.getLogger(__name__)
 
@@ -50,8 +134,7 @@ def process_ontology_task(
         # 3. Convert ontology to Markdown using pylode
         logger.info("Converting ontology to Markdown with pylode...")
         logger.info("Loading ontology into RDF graph...")
-        g = Graph()
-        g.parse(str(temp_file_path))
+        g = _load_graph_with_fallbacks(temp_file_path)
         doc = OntDoc(g=g, source_info=str(temp_file_path), outputformat="md")
         markdown_content = doc.generate_document()
         logger.info("Conversion to Markdown successful.")

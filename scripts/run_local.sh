@@ -51,7 +51,7 @@ echo "The recommended way to run the full stack is with 'docker-compose up'."
 echo "Default connections:"
 echo "  - Redis: redis://localhost:6379"
 echo "  - Weaviate: http://localhost:8080"
-echo "Ensure your 'app.env' file is configured correctly for your local setup."
+echo "Ensure your '.env' file is configured correctly for your local setup."
 echo "!!!!!!!!!!!!!!!!!!!"
 echo ""
 

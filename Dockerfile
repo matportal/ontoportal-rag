@@ -26,6 +26,12 @@ COPY --from=builder /app/venv /app/venv
 # Copy application source code
 COPY ./src /app/src
 
+# Install Java runtime for ROBOT preprocessing
+USER root
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openjdk-21-jre-headless && \
+    rm -rf /var/lib/apt/lists/*
+
 # Set the path to include the virtual environment's binaries
 ENV PATH="/app/venv/bin:$PATH"
 # Set PYTHONPATH to find the application modules

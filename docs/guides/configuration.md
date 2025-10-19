@@ -1,6 +1,10 @@
 # Configuration Guide
 
-The ONTO-RAG-V1 application is configured using environment variables. The system loads these variables from a file named `app.env` in the project root.
+The ONTO-RAG-V1 application is configured using environment variables. The system loads these variables from a file named `.env` in the project root (typically created from `app.env.example`).
+
+### Optional: ROBOT ontology toolkit
+
+Set `ROBOT_ENABLED=true` and provide `ROBOT_JAR_PATH=/path/to/robot.jar` to let the worker pre-process ontologies via the ROBOT CLI (`robot convert` + `robot repair`). This often fixes malformed RDF/XML or Turtle downloads before they are parsed.
 
 Below is a complete list of all environment variables used by the application.
 

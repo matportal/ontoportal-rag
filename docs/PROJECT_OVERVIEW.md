@@ -22,7 +22,7 @@ Positioning: This system is a foundation for teams that need robust ontology ing
 - Goals
   - Asynchronous ingestion pipeline converting OWL to Markdown, chunking, and batch indexing into a vector DB. See [process_ontology_task()](src/app/tasks/ontology_processor.py:14) and [IndexingService.batch_index_chunks()](src/app/services/indexing_service.py:61).
   - Real-time query pipeline: hybrid search in Weaviate, re-ranking via Cohere, answer generation via an LLM. See [RetrievalService.answer_query()](src/app/services/retrieval_service.py:63).
-  - Clear configuration via environment variables loaded by [Settings](src/app/core/config.py:9) and examples in [app.env.example](app.env.example).
+- Clear configuration via environment variables loaded by [Settings](src/app/core/config.py:9) and examples in [app.env.example](app.env.example) (copy to a local `.env` file).
   - Containerized deployment and local orchestration via [docker-compose.yml](docker-compose.yml) and multi-stage [Dockerfile](Dockerfile).
   - Test coverage across unit, integration, and e2e tests. See [tests/unit/test_chunking.py](tests/unit/test_chunking.py), [tests/integration/test_api.py](tests/integration/test_api.py), and [tests/e2e/test_e2e.py](tests/e2e/test_e2e.py).
 
@@ -92,7 +92,7 @@ Reference: [docs/api/query.md](docs/api/query.md), [tutorials/query_tutorial.md]
 
 ## 5. Configuration
 
-Configuration is managed by Pydantic [Settings](src/app/core/config.py:9) and a shared instance [settings](src/app/core/config.py:57). Example values are provided in [app.env.example](app.env.example); environment variables are also passed into containers via [docker-compose.yml](docker-compose.yml).
+Configuration is managed by Pydantic [Settings](src/app/core/config.py:9) and a shared instance [settings](src/app/core/config.py:57). Example values are provided in [app.env.example](app.env.example); copy that file to `.env` for local execution. Environment variables are also passed into containers via [docker-compose.yml](docker-compose.yml).
 
 Key settings summary (see [docs/guides/configuration.md](docs/guides/configuration.md) for the full table):
 

@@ -67,7 +67,7 @@ def test_ingest_ontology_endpoint(test_client, mock_celery_task):
     assert kwargs['ontology_id'] == "test-ontology"
     assert kwargs['version'] == "1.1"
     assert not kwargs['is_update']
-    assert '"domain": "test"' in kwargs['metadata']
+    assert '"domain": "test"' in kwargs['metadata_json']
 
 def test_query_endpoint(test_client, mock_retrieval_service):
     """Tests the /query endpoint with a mocked retrieval service."""

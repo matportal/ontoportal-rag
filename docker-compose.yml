@@ -55,6 +55,7 @@ services:
       - .env
     volumes:
       - ./src:/app/src
+      - ./tools:/app/tools
     extra_hosts:
       - "host.docker.internal:host-gateway"
     # The command for the celery worker will need the app path.

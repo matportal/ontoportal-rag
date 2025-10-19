@@ -3,8 +3,8 @@ import cohere
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Load environment variables from app.env
-load_dotenv("app.env")
+# Load environment variables from .env
+load_dotenv(".env")
 
 def test_openai():
     print("Testing OpenAI API key...")

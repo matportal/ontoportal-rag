@@ -19,9 +19,9 @@ echo "  Running ONTO-RAG-V1 E2E Test Suite"
 echo "========================================"
 
 # --- Check for API Keys ---
-if ! grep -q "OPENAI_API_KEY=sk-" app.env || ! grep -q "COHERE_API_KEY=" app.env; then
-    echo "Error: API keys for OpenAI and Cohere are not found in app.env."
-    echo "Please add your keys to the app.env file before running the E2E tests."
+if ! grep -q "OPENAI_API_KEY=sk-" .env || ! grep -q "COHERE_API_KEY=" .env; then
+    echo "Error: API keys for OpenAI and Cohere are not found in .env."
+    echo "Please add your keys to the .env file before running the E2E tests."
     exit 1
 fi
 

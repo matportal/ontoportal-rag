@@ -32,19 +32,16 @@ You can run this project using either Docker (recommended for a full-stack, isol
 
 ### 1. Configuration
 
-Environment variables are sourced from two optional files (both ignored by git):
-
-- `app.env` – used when running Python processes directly.
-- `.env` – consumed automatically by Docker Compose.
-
-Create both files from the provided template and add your credentials (never commit them):
+Environment variables are sourced from a `.env` file (ignored by git). Create it from the provided template and add your credentials (never commit them):
 
 ```bash
-cp app.env.example app.env
 cp app.env.example .env
 ```
 
 If you proxy OpenAI-compatible calls through LiteLLM or similar, set `OPENAI_BASE_URL` and `OPENAI_EMBEDDINGS_BASE_URL` to `http://host.docker.internal:4000/v1` so containers can reach the host service.
+
+**ROBOT (optional).**  
+If you would like the ingestion pipeline to auto-repair problematic ontologies, download the [ROBOT](https://robot.obolibrary.org/) CLI (`robot.jar`), set `ROBOT_ENABLED=true`, and point `ROBOT_JAR_PATH` to the jar. The worker will run `robot convert`/`robot repair` before parsing, which resolves many malformed RDF/XML and Turtle issues.
 
 ### 2. Running with Docker (Recommended)
 
@@ -72,7 +69,7 @@ docker compose down
 
 If you prefer to run the Python services directly on your host machine, you can use the provided script.
 
-**Note:** You must have Redis and Weaviate running and accessible on the ports configured in your `app.env` file (defaults to `localhost:6379` and `localhost:8080`).
+**Note:** You must have Redis and Weaviate running and accessible on the ports configured in your `.env` file (defaults to `localhost:6379` and `localhost:8080`).
 
 ```bash
 # Run the local development script
